@@ -1,0 +1,74 @@
+##
+# Trip-Path 로컬 개발 환경
+# 설계서 Section 7.3, 7.4: PostgreSQL, Redis, Elasticsearch
+##
+version: '3.8'
+
+services:
+  # PostgreSQL (설계서 Section 7.3: PostgreSQL 16)
+  postgres:
+    image: postgres:16-alpine
+    container_name: trippath-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: trippath
+      POSTGRES_USER: trippath
+      POSTGRES_PASSWORD: trippath_secret
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U trippath']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (설계서 Section 7.3: Redis 7)
+  redis:
+    image: redis:7-alpine
+    container_name: trippath-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Elasticsearch (설계서 Section 7.3: Elasticsearch 8 - Phase 3에서 도입)
+  # elasticsearch:
+  #   image: elasticsearch:8.15.0
+  #   container_name: trippath-elasticsearch
+  #   environment:
+  #     - discovery.type=single-node
+  #     - xpack.security.enabled=false
+  #     - ES_JAVA_OPTS=-Xms512m -Xmx512m
+  #   ports:
+  #     - '9200:9200'
+  #   volumes:
+  #     - es_data:/usr/share/elasticsearch/data
+
+  # MinIO (S3 호환 로컬 오브젝트 스토리지)
+  minio:
+    image: minio/minio:latest
+    container_name: trippath-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - minio_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:
+  # es_data:
