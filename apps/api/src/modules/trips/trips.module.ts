@@ -7,9 +7,10 @@ import { TripDay } from '../../database/entities/trip-day.entity';
 import { TripPlace } from '../../database/entities/trip-place.entity';
 import { TripLike } from '../../database/entities/trip-like.entity';
 import { TripBookmark } from '../../database/entities/trip-bookmark.entity';
+import { Comment } from '../../database/entities/comment.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Trip, TripDay, TripPlace, TripLike, TripBookmark])],
+  imports: [TypeOrmModule.forFeature([Trip, TripDay, TripPlace, TripLike, TripBookmark, Comment])],
   controllers: [TripsController],
   providers: [TripsService],
   exports: [TripsService],
